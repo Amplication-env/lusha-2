@@ -9,37 +9,24 @@ https://docs.amplication.com/how-to/custom-code
 
 ------------------------------------------------------------------------------
   */
-import { ObjectType, Field } from "@nestjs/graphql";
+import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsDate, IsOptional, ValidateNested } from "class-validator";
+import { IsString, IsOptional, ValidateNested } from "class-validator";
+import { PetWhereUniqueInput } from "../../pet/base/PetWhereUniqueInput";
 import { Type } from "class-transformer";
-import { Animal } from "../../animal/base/Animal";
 
-@ObjectType()
-class Pet {
+@InputType()
+class AnimalUpdateInput {
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
   })
   @IsString()
-  @Field(() => String)
-  id!: string;
-
-  @ApiProperty({
-    required: true,
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
   })
-  @IsDate()
-  @Type(() => Date)
-  @Field(() => Date)
-  createdAt!: Date;
-
-  @ApiProperty({
-    required: true,
-  })
-  @IsDate()
-  @Type(() => Date)
-  @Field(() => Date)
-  updatedAt!: Date;
+  name?: string | null;
 
   @ApiProperty({
     required: false,
@@ -50,16 +37,19 @@ class Pet {
   @Field(() => String, {
     nullable: true,
   })
-  name!: string | null;
+  toPath?: string | null;
 
   @ApiProperty({
     required: false,
-    type: () => [Animal],
+    type: () => PetWhereUniqueInput,
   })
   @ValidateNested()
-  @Type(() => Animal)
+  @Type(() => PetWhereUniqueInput)
   @IsOptional()
-  animals?: Array<Animal>;
+  @Field(() => PetWhereUniqueInput, {
+    nullable: true,
+  })
+  pet?: PetWhereUniqueInput | null;
 }
 
-export { Pet as Pet };
+export { AnimalUpdateInput as AnimalUpdateInput };

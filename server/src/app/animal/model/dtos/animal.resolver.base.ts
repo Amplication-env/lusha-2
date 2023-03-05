@@ -19,31 +19,30 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as common from "@nestjs/common";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { CreatePetArgs } from "./CreatePetArgs";
-import { UpdatePetArgs } from "./UpdatePetArgs";
-import { DeletePetArgs } from "./DeletePetArgs";
-import { PetFindManyArgs } from "./PetFindManyArgs";
-import { PetFindUniqueArgs } from "./PetFindUniqueArgs";
-import { Pet } from "./Pet";
-import { AnimalFindManyArgs } from "../../animal/base/AnimalFindManyArgs";
-import { Animal } from "../../animal/base/Animal";
-import { PetService } from "../../app/pet/services/pet.service";
+import { CreateAnimalArgs } from "./CreateAnimalArgs";
+import { UpdateAnimalArgs } from "./UpdateAnimalArgs";
+import { DeleteAnimalArgs } from "./DeleteAnimalArgs";
+import { AnimalFindManyArgs } from "./AnimalFindManyArgs";
+import { AnimalFindUniqueArgs } from "./AnimalFindUniqueArgs";
+import { Animal } from "./Animal";
+import { Pet } from "../../pet/base/Pet";
+import { AnimalService } from "../../app/animal/services/animal.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
-@graphql.Resolver(() => Pet)
-export class PetResolverBase {
+@graphql.Resolver(() => Animal)
+export class AnimalResolverBase {
   constructor(
-    protected readonly service: PetService,
+    protected readonly service: AnimalService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
   @graphql.Query(() => MetaQueryPayload)
   @nestAccessControl.UseRoles({
-    resource: "Pet",
+    resource: "Animal",
     action: "read",
     possession: "any",
   })
-  async _petsMeta(
-    @graphql.Args() args: PetFindManyArgs
+  async _animalsMeta(
+    @graphql.Args() args: AnimalFindManyArgs
   ): Promise<MetaQueryPayload> {
     const results = await this.service.count({
       ...args,
@@ -56,24 +55,26 @@ export class PetResolverBase {
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.Query(() => [Pet])
+  @graphql.Query(() => [Animal])
   @nestAccessControl.UseRoles({
-    resource: "Pet",
+    resource: "Animal",
     action: "read",
     possession: "any",
   })
-  async pets(@graphql.Args() args: PetFindManyArgs): Promise<Pet[]> {
+  async animals(@graphql.Args() args: AnimalFindManyArgs): Promise<Animal[]> {
     return this.service.findMany(args);
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.Query(() => Pet, { nullable: true })
+  @graphql.Query(() => Animal, { nullable: true })
   @nestAccessControl.UseRoles({
-    resource: "Pet",
+    resource: "Animal",
     action: "read",
     possession: "own",
   })
-  async pet(@graphql.Args() args: PetFindUniqueArgs): Promise<Pet | null> {
+  async animal(
+    @graphql.Args() args: AnimalFindUniqueArgs
+  ): Promise<Animal | null> {
     const result = await this.service.findOne(args);
     if (result === null) {
       return null;
@@ -82,31 +83,49 @@ export class PetResolverBase {
   }
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
-  @graphql.Mutation(() => Pet)
+  @graphql.Mutation(() => Animal)
   @nestAccessControl.UseRoles({
-    resource: "Pet",
+    resource: "Animal",
     action: "create",
     possession: "any",
   })
-  async createPet(@graphql.Args() args: CreatePetArgs): Promise<Pet> {
+  async createAnimal(@graphql.Args() args: CreateAnimalArgs): Promise<Animal> {
     return await this.service.create({
       ...args,
-      data: args.data,
+      data: {
+        ...args.data,
+
+        pet: args.data.pet
+          ? {
+              connect: args.data.pet,
+            }
+          : undefined,
+      },
     });
   }
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
-  @graphql.Mutation(() => Pet)
+  @graphql.Mutation(() => Animal)
   @nestAccessControl.UseRoles({
-    resource: "Pet",
+    resource: "Animal",
     action: "update",
     possession: "any",
   })
-  async updatePet(@graphql.Args() args: UpdatePetArgs): Promise<Pet | null> {
+  async updateAnimal(
+    @graphql.Args() args: UpdateAnimalArgs
+  ): Promise<Animal | null> {
     try {
       return await this.service.update({
         ...args,
-        data: args.data,
+        data: {
+          ...args.data,
+
+          pet: args.data.pet
+            ? {
+                connect: args.data.pet,
+              }
+            : undefined,
+        },
       });
     } catch (error) {
       if (isRecordNotFoundError(error)) {
@@ -118,13 +137,15 @@ export class PetResolverBase {
     }
   }
 
-  @graphql.Mutation(() => Pet)
+  @graphql.Mutation(() => Animal)
   @nestAccessControl.UseRoles({
-    resource: "Pet",
+    resource: "Animal",
     action: "delete",
     possession: "any",
   })
-  async deletePet(@graphql.Args() args: DeletePetArgs): Promise<Pet | null> {
+  async deleteAnimal(
+    @graphql.Args() args: DeleteAnimalArgs
+  ): Promise<Animal | null> {
     try {
       return await this.service.delete(args);
     } catch (error) {
@@ -138,22 +159,18 @@ export class PetResolverBase {
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.ResolveField(() => [Animal])
+  @graphql.ResolveField(() => Pet, { nullable: true })
   @nestAccessControl.UseRoles({
-    resource: "Animal",
+    resource: "Pet",
     action: "read",
     possession: "any",
   })
-  async animals(
-    @graphql.Parent() parent: Pet,
-    @graphql.Args() args: AnimalFindManyArgs
-  ): Promise<Animal[]> {
-    const results = await this.service.findAnimals(parent.id, args);
+  async pet(@graphql.Parent() parent: Animal): Promise<Pet | null> {
+    const result = await this.service.getPet(parent.id);
 
-    if (!results) {
-      return [];
+    if (!result) {
+      return null;
     }
-
-    return results;
+    return result;
   }
 }

@@ -10,12 +10,19 @@ import { AuthMiddleware } from "@lusha/core-nestjs";
 import { PrismaModule } from "./app/prisma/prisma.module";
 import { LushaUserModule } from "./app/User/User.module";
 import { LushaPetModule } from "./app/Pet/Pet.module";
+import { LushaAnimalModule } from "./app/Animal/Animal.module";
 
 import { ACLModule } from "./auth/acl.module";
 import { AuthModule } from "./auth/auth.module";
 
 @Module({
-  imports: [PrismaModule, LushaUserModule, LushaPetModule, ConfigModule],
+  imports: [
+    PrismaModule,
+    LushaUserModule,
+    LushaPetModule,
+    LushaAnimalModule,
+    ConfigModule,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -32,6 +39,10 @@ export class AppModule implements NestModule {
         },
         {
           path: "/lusha-Pet",
+          method: RequestMethod.ALL,
+        },
+        {
+          path: "/lusha-Animal",
           method: RequestMethod.ALL,
         }
       );

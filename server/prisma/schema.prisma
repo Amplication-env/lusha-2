@@ -23,4 +23,15 @@ model Pet {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String?
+  animals   Animal[]
+}
+
+model Animal {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String?
+  toPath    String?
+  pet       Pet?     @relation(fields: [petId], references: [id])
+  petId     String?
 }

@@ -13,10 +13,10 @@ import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsDate, IsOptional, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
-import { Animal } from "../../animal/base/Animal";
+import { Pet } from "../../pet/base/Pet";
 
 @ObjectType()
-class Pet {
+class Animal {
   @ApiProperty({
     required: true,
     type: String,
@@ -54,12 +54,23 @@ class Pet {
 
   @ApiProperty({
     required: false,
-    type: () => [Animal],
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  toPath!: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Pet,
   })
   @ValidateNested()
-  @Type(() => Animal)
+  @Type(() => Pet)
   @IsOptional()
-  animals?: Array<Animal>;
+  pet?: Pet | null;
 }
 
-export { Pet as Pet };
+export { Animal as Animal };

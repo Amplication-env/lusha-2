@@ -10,7 +10,7 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma, Pet } from "@prisma/client";
+import { Prisma, Pet, Animal } from "@prisma/client";
 
 export class PetServiceBase {
   constructor(protected readonly prisma: PrismaService) {}
@@ -45,5 +45,16 @@ export class PetServiceBase {
     args: Prisma.SelectSubset<T, Prisma.DeletePetArgs>
   ): Promise<Pet> {
     return this.prisma.pet.delete(args);
+  }
+
+  async findAnimals(
+    parentId: string,
+    args: Prisma.AnimalFindManyArgs
+  ): Promise<Animal[]> {
+    return this.prisma.pet
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .animals(args);
   }
 }

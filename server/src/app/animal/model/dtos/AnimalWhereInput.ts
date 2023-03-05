@@ -15,10 +15,10 @@ import { StringFilter } from "../../util/StringFilter";
 import { Type } from "class-transformer";
 import { IsOptional, ValidateNested } from "class-validator";
 import { StringNullableFilter } from "../../util/StringNullableFilter";
-import { AnimalListRelationFilter } from "../../animal/base/AnimalListRelationFilter";
+import { PetWhereUniqueInput } from "../../pet/base/PetWhereUniqueInput";
 
 @InputType()
-class PetWhereInput {
+class AnimalWhereInput {
   @ApiProperty({
     required: false,
     type: StringFilter,
@@ -43,15 +43,26 @@ class PetWhereInput {
 
   @ApiProperty({
     required: false,
-    type: () => AnimalListRelationFilter,
+    type: StringNullableFilter,
   })
-  @ValidateNested()
-  @Type(() => AnimalListRelationFilter)
+  @Type(() => StringNullableFilter)
   @IsOptional()
-  @Field(() => AnimalListRelationFilter, {
+  @Field(() => StringNullableFilter, {
     nullable: true,
   })
-  animals?: AnimalListRelationFilter;
+  toPath?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => PetWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => PetWhereUniqueInput)
+  @IsOptional()
+  @Field(() => PetWhereUniqueInput, {
+    nullable: true,
+  })
+  pet?: PetWhereUniqueInput;
 }
 
-export { PetWhereInput as PetWhereInput };
+export { AnimalWhereInput as AnimalWhereInput };

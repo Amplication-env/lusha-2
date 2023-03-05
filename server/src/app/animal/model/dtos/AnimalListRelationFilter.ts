@@ -11,34 +11,46 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional, ValidateNested } from "class-validator";
-import { AnimalUpdateManyWithoutPetsInput } from "./AnimalUpdateManyWithoutPetsInput";
+import { AnimalWhereInput } from "./AnimalWhereInput";
+import { ValidateNested, IsOptional } from "class-validator";
 import { Type } from "class-transformer";
 
 @InputType()
-class PetUpdateInput {
+class AnimalListRelationFilter {
   @ApiProperty({
     required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  name?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => AnimalUpdateManyWithoutPetsInput,
+    type: () => AnimalWhereInput,
   })
   @ValidateNested()
-  @Type(() => AnimalUpdateManyWithoutPetsInput)
+  @Type(() => AnimalWhereInput)
   @IsOptional()
-  @Field(() => AnimalUpdateManyWithoutPetsInput, {
+  @Field(() => AnimalWhereInput, {
     nullable: true,
   })
-  animals?: AnimalUpdateManyWithoutPetsInput;
-}
+  every?: AnimalWhereInput;
 
-export { PetUpdateInput as PetUpdateInput };
+  @ApiProperty({
+    required: false,
+    type: () => AnimalWhereInput,
+  })
+  @ValidateNested()
+  @Type(() => AnimalWhereInput)
+  @IsOptional()
+  @Field(() => AnimalWhereInput, {
+    nullable: true,
+  })
+  some?: AnimalWhereInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => AnimalWhereInput,
+  })
+  @ValidateNested()
+  @Type(() => AnimalWhereInput)
+  @IsOptional()
+  @Field(() => AnimalWhereInput, {
+    nullable: true,
+  })
+  none?: AnimalWhereInput;
+}
+export { AnimalListRelationFilter as AnimalListRelationFilter };
